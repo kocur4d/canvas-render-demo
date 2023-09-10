@@ -1,9 +1,8 @@
 import React, { useState, MouseEvent } from "react";
 import { useSetupCanvas } from "./useSetupCanvas";
-import { vec2 } from "gl-matrix";
-import { transformVectors } from "../la/transformVectors";
 import { useMousePosition } from "./useMousePosition";
-import { SceneEvent, useScene } from "./Scene/useScene";
+import { useScene, SceneEvent } from "./Scene/useScene";
+import { Transform } from "./Scene/Transformations/types";
 
 const shapes = [
   {
@@ -33,7 +32,7 @@ function App() {
   const [sceneEvent, setSceneEvent] = useState<SceneEvent | null>(null);
 
   const { ref, ctx } = useSetupCanvas();
-  const { sceneOnHover, updateVertices } = useScene(ctx, shapes);
+  const { sceneOnHover, updateNode } = useScene(ctx, shapes);
   const { mousePositionOnMouseMove } = useMousePosition();
 
   const handleOnMouseMove = (event: MouseEvent) => {
@@ -41,39 +40,19 @@ function App() {
       const { mp, mpdelta } = mousePositionOnMouseMove(event, ctx);
 
       if (!isDragging) sceneOnHover(mp, setSceneEvent);
-
       if (isDragging && sceneEvent?.type === "EDGE") {
         const { target, data } = sceneEvent;
-        const scale = vec2.fromValues(1, 1);
-        const vertices = target.processedVertices;
-
         if (data[0] === 0) {
-          scale[1] = 1 + mpdelta[1] / (vertices[0][1] - vertices[3][1]);
-          updateVertices(
-            target.name,
-            transformVectors(vertices, vertices[3], scale)
-          );
+          updateNode(target.name, mpdelta, Transform.SCALE_Y_DOWN);
         }
         if (data[0] === 1) {
-          scale[0] = 1 + mpdelta[0] / (vertices[1][0] - vertices[0][0]);
-          updateVertices(
-            target.name,
-            transformVectors(vertices, vertices[0], scale)
-          );
+          updateNode(target.name, mpdelta, Transform.SCALE_X_RIGHT);
         }
         if (data[0] === 2) {
-          scale[1] = 1 + mpdelta[1] / (vertices[3][1] - vertices[0][1]);
-          updateVertices(
-            target.name,
-            transformVectors(vertices, vertices[0], scale)
-          );
+          updateNode(target.name, mpdelta, Transform.SCALE_Y_UP);
         }
         if (data[0] === 3) {
-          scale[0] = 1 + mpdelta[0] / (vertices[0][0] - vertices[1][0]);
-          updateVertices(
-            target.name,
-            transformVectors(vertices, vertices[1], scale)
-          );
+          updateNode(target.name, mpdelta, Transform.SCALE_X_LEFT);
         }
       }
     }

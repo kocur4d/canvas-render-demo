@@ -1,15 +1,21 @@
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { createScene, Shape } from "./createScene";
 import { vec2, vec3 } from "gl-matrix";
-import { drawShape } from "./drawShape";
-import { Axis } from "../../la";
-import { ProcessedSceneNode, useProcessScene } from "./useProcessScene";
+import { useDrawScene } from "./useDrawScene";
+import { SceneNode } from "./Graph";
+import {
+  scaleXLeft,
+  scaleXRight,
+  scaleYDown,
+  scaleYUp,
+} from "./Transformations";
+import { Axis, Transform } from "./Transformations/types";
 
 const OFFSET = 20;
 
 export type SceneEvent = {
   type: string;
-  target: ProcessedSceneNode;
+  target: SceneNode;
   data: number[];
 };
 
@@ -17,19 +23,8 @@ const useScene = (
   ctx: CanvasRenderingContext2D | undefined,
   shapes: Shape[]
 ) => {
-  const [scene] = useState(() => createScene(shapes));
-  const { processdScene, setProcessedScene } = useProcessScene(scene);
-
-  useEffect(() => {
-    if (ctx) {
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      processdScene.forEach(
-        (node) =>
-          node?.processedVertices &&
-          drawShape(ctx, node.processedVertices, "black")
-      );
-    }
-  }, [ctx, processdScene]);
+  const [scene, setScene] = useState(() => createScene(shapes));
+  useDrawScene(ctx, scene);
 
   const edgeCross = (vectors: vec3[]) => {
     const [ab, ap] = vectors;
@@ -43,11 +38,10 @@ const useScene = (
     return [ab, ap];
   };
 
-  const sceneOnHover = (mp: vec2, callback: (event: SceneEvent) => void) => {
-    for (let i = 0; i < processdScene.length; i++) {
-      const node = processdScene[i];
-      if (node) {
-        const { processedVertices: pv } = node;
+  const explore = useCallback(
+    (node: SceneNode, mp: vec2, callback: (event: SceneEvent) => void) => {
+      if (node.vertices.length > 0) {
+        const { vertices: pv } = node;
 
         if (pv.length > 0) {
           const w0p = vertexPointVectors(pv[0], pv[1], mp);
@@ -81,23 +75,31 @@ const useScene = (
               target: node,
               data: edges,
             });
-            break;
           }
         }
       }
-    }
+      node.children.forEach((child) => explore(child, mp, callback));
+    },
+    []
+  );
+
+  const sceneOnHover = (mp: vec2, callback: (event: SceneEvent) => void) => {
+    explore(scene, mp, callback);
   };
 
-  const updateVertices = (name: string, vertices: any) => {
-    const updatedNodes = processdScene.map((node) =>
-      node?.name === name ? { ...node, processedVertices: vertices } : node
-    );
-    setProcessedScene(updatedNodes);
+  const updateNode = (name: string, mpdelta: vec2, type: string) => {
+    if (type === Transform.SCALE_X_RIGHT)
+      setScene(scaleXRight(scene, name, mpdelta));
+    if (type === Transform.SCALE_Y_DOWN)
+      setScene(scaleYDown(scene, name, mpdelta));
+    if (type === Transform.SCALE_Y_UP) setScene(scaleYUp(scene, name, mpdelta));
+    if (type === Transform.SCALE_X_LEFT)
+      setScene(scaleXLeft(scene, name, mpdelta));
   };
 
   return {
     sceneOnHover,
-    updateVertices,
+    updateNode,
   };
 };
 

@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from "react";
-import { SceneNode } from "./Graph/createNode";
+import { SceneNode } from "./Graph";
 import { drawShape } from "./drawShape";
 
 const useDrawScene = (
@@ -16,7 +16,6 @@ const useDrawScene = (
 
   useEffect(() => {
     if (ctx) {
-      console.log("draw");
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
       explore(scene);
     }
