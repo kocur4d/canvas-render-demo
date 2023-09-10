@@ -28,7 +28,7 @@ const useProcessScene = (scene: SceneNode) => {
           vec3.transformMat3(vec3.create(), node.vertices[i], newTransform)
         );
       }
-      return { ...node, processedVertices: vectors.reverse() };
+      return { ...node, processedVertices: vectors };
     }
 
     const result = node.children.map((child) => process(child, newTransform));

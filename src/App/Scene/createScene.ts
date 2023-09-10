@@ -13,10 +13,10 @@ const createScene = (shapes: Shape[]) => {
     const node = createNode({ name: shape.name });
     node.transformations.push(transformationMatrixFromGeometry(shape.geometry));
     node.vertices = [
-      vec3.fromValues(-0.5, 0.5, 1),
-      vec3.fromValues(0.5, 0.5, 1),
-      vec3.fromValues(0.5, -0.5, 1),
       vec3.fromValues(-0.5, -0.5, 1),
+      vec3.fromValues(0.5, -0.5, 1),
+      vec3.fromValues(0.5, 0.5, 1),
+      vec3.fromValues(-0.5, 0.5, 1),
     ];
     canvas.children.push(node);
   });
