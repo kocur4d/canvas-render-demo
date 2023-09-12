@@ -1,105 +1,60 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { createScene, Shape } from "./createScene";
-import { vec2, vec3 } from "gl-matrix";
+import { vec2 } from "gl-matrix";
 import { useDrawScene } from "./useDrawScene";
-import { SceneNode } from "./Graph";
 import {
   scaleXLeft,
   scaleXRight,
   scaleYDown,
   scaleYUp,
 } from "./Transformations";
-import { Axis, Transform } from "./Transformations/types";
-
-const OFFSET = 20;
-
-export type SceneEvent = {
-  type: string;
-  target: SceneNode;
-  data: number[];
-};
+import { useNode } from "./useNode";
+import { HoverTarget, useHoverDetect } from "./useHoverDetect";
 
 const useScene = (
   ctx: CanvasRenderingContext2D | undefined,
   shapes: Shape[]
 ) => {
   const [scene, setScene] = useState(() => createScene(shapes));
+  const { node, hoverExplore } = useNode();
+  const { hoverTarget, detectTarget } = useHoverDetect(node);
+
+  const [isDragging, setIsDragging] = useState(false);
+
   useDrawScene(ctx, scene);
 
-  const edgeCross = (vectors: vec3[]) => {
-    const [ab, ap] = vectors;
-    return ab[0] * ap[1] - ab[1] * ap[0];
+  const sceneOnMouseMove = (mp: vec2, mpdelta: vec2) => {
+    if (!isDragging) {
+      hoverExplore(scene, mp);
+      detectTarget(mp);
+    }
+    if (isDragging && node && hoverTarget) {
+      updateNode(node.name, mpdelta, hoverTarget);
+    }
   };
 
-  const vertexPointVectors = (a: vec3, b: vec3, point: vec2) => {
-    const p = vec3.fromValues(point[Axis.X], point[Axis.Y], 1);
-    const ab = vec3.subtract(vec3.create(), b, a);
-    const ap = vec3.subtract(vec3.create(), p, a);
-    return [ab, ap];
+  const sceneOnMouseDown = () => {
+    if (node) {
+      setIsDragging(true);
+    }
   };
 
-  const explore = useCallback(
-    (node: SceneNode, mp: vec2, callback: (event: SceneEvent) => void) => {
-      if (node.vertices.length > 0) {
-        const { vertices: pv } = node;
-
-        if (pv.length > 0) {
-          const w0p = vertexPointVectors(pv[0], pv[1], mp);
-          const w1p = vertexPointVectors(pv[1], pv[2], mp);
-          const w2p = vertexPointVectors(pv[2], pv[3], mp);
-          const w3p = vertexPointVectors(pv[3], pv[0], mp);
-
-          const isOutside = [w0p, w1p, w2p, w3p].some((vectors) => {
-            return edgeCross(vectors) < 0;
-          });
-
-          if (!isOutside) {
-            const edges = [w0p, w1p, w2p, w3p].reduce<number[]>(
-              (acc, val, idx) => {
-                const [ab, ap] = val;
-                const dot = vec3.dot(ab, ap);
-                const squaredLength = vec3.squaredLength(ap);
-                const scaleFactor = dot / squaredLength;
-                const result = vec3.create();
-                vec3.scale(result, ap, scaleFactor);
-                vec3.subtract(result, ab, result);
-                const distance = vec3.length(result);
-
-                if (distance < OFFSET) return [...acc, idx];
-                return acc;
-              },
-              []
-            );
-            callback({
-              type: "EDGE",
-              target: node,
-              data: edges,
-            });
-          }
-        }
-      }
-      node.children.forEach((child) => explore(child, mp, callback));
-    },
-    []
-  );
-
-  const sceneOnHover = (mp: vec2, callback: (event: SceneEvent) => void) => {
-    explore(scene, mp, callback);
+  const sceneOnMouseUp = () => {
+    setIsDragging(false);
   };
 
-  const updateNode = (name: string, mpdelta: vec2, type: string) => {
-    if (type === Transform.SCALE_X_RIGHT)
+  const updateNode = (name: string, mpdelta: vec2, type: HoverTarget) => {
+    if (type === HoverTarget.EDGE_1)
       setScene(scaleXRight(scene, name, mpdelta));
-    if (type === Transform.SCALE_Y_DOWN)
-      setScene(scaleYDown(scene, name, mpdelta));
-    if (type === Transform.SCALE_Y_UP) setScene(scaleYUp(scene, name, mpdelta));
-    if (type === Transform.SCALE_X_LEFT)
-      setScene(scaleXLeft(scene, name, mpdelta));
+    if (type === HoverTarget.EDGE_0) setScene(scaleYDown(scene, name, mpdelta));
+    if (type === HoverTarget.EDGE_2) setScene(scaleYUp(scene, name, mpdelta));
+    if (type === HoverTarget.EDGE_3) setScene(scaleXLeft(scene, name, mpdelta));
   };
 
   return {
-    sceneOnHover,
-    updateNode,
+    sceneOnMouseMove,
+    sceneOnMouseDown,
+    sceneOnMouseUp,
   };
 };
 
