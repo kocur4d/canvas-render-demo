@@ -1,10 +1,8 @@
 # Canvas Render demo
 
-This project shows how canvas could be used as a 2D rendering layer.
+This project demonstrates how to utilize the HTML canvas element as a 2D rendering layer. It leverages React to bootstrap the application, the canvas element for drawing, and the gl-matrix library for vector operations.
 
-Project uses React to bootstrap the app, canvas as a drawing layer and gl-matrix lib for vector operations.
-
-## How to start
+## Getting started
 
 ```
 git clone git@github.com:kocur4d/canvas-render-demo.git
@@ -15,7 +13,7 @@ npm run start
 
 ### How does it work
 
-Input data in are the rectangles
+The input data consists of rectangles described in the following format:
 
 ```
   {
@@ -29,12 +27,11 @@ Input data in are the rectangles
     },
   },
 ```
-This geomety represents `x,y` as a top left corner `h,w` are width and height and `a` is anticlockwise rotation around the middle of the rect.
-This geometry can by eaisly turn into three matrix operation, translate, scale and rotate.
+In this geometry representation, `x` and `y` specify the top-left corner, `h` and `w` define the width and height, and `a` represents the anticlockwise rotation around the middle of the rectangle. These geometric properties are easily transformed into three matrix operations: translate, scale, and rotate.
 
-Input date gets converted into the scene graph which is the application source of truth.
+The input data is converted into a scene graph, which serves as the application's source of truth.
 
-Main, and only, HTML component used is canvas. Which simply hooksup to rendering framework via event handlers.
+The primary HTML component used is the canvas element, which connects to the rendering framework through event handlers:
 
 ```
     <canvas
@@ -45,12 +42,11 @@ Main, and only, HTML component used is canvas. Which simply hooksup to rendering
       onWheel={handleOnWheel}
     />
 ```
-Mouse movemnt gets tracked and compared to the scene. When conditions are meet, cursor over shape/cursor over edge/ mosue clicked, and user starts dragging. 
-One matrix transformation routine from `Scene/Transformations` folder will be called modifing the affected node which in turn will force all of the scene to be redrawn.
+Mouse movements are tracked and compared to the scene. When specific conditions are met (e.g., cursor over shape, cursor over edge, mouse clicked), and the user starts dragging, a matrix transformation routine from the Scene/Transformations folder is called to modify the affected node. This, in turn, triggers a redraw of the entire scene.
 
 ### Gotchas
 
-This is just a quick demo. Alot of things can be improved. Most of the edge cases will result in application blowing up mostly due to division by 0.
+This is a quick demo, and there is room for improvement. Be aware that many edge cases can cause the application to fail, often due to division by zero errors.
 
 ### Demo
 
