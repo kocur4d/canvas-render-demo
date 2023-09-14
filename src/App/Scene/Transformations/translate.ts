@@ -1,22 +1,20 @@
 import { mat3, vec2, vec3 } from "gl-matrix";
 import { SceneNode, cloneNode } from "../Graph";
-import { Axis, RECT } from "./types";
-import { getScaleFactor } from "./getScaleFactor";
+import { RECT } from "./types";
 
-const scaleXRight = (scene: SceneNode, name: string, mpdelta: vec2) => {
+const translate = (scene: SceneNode, name: string, mpdelta: vec2) => {
   const explore = (node: SceneNode) => {
     const nnode = cloneNode(node);
 
     if (node.name === name) {
       const T = nnode.transformations[0];
-      const scale = vec2.fromValues(1, 1);
-      getScaleFactor(mpdelta, nnode);
-      scale[Axis.X] = 1 + mpdelta[Axis.X];
-      const S = mat3.create();
-      mat3.fromScaling(S, scale);
-      mat3.multiply(T, T, S);
+      const TR = mat3.fromTranslation(mat3.create(), mpdelta);
+
+      mat3.multiply(T, TR, T);
+
       nnode.transformations = [T];
       nnode.vertices = RECT.map((v) => vec3.transformMat3(vec3.create(), v, T));
+
       return nnode;
     }
 
@@ -28,4 +26,4 @@ const scaleXRight = (scene: SceneNode, name: string, mpdelta: vec2) => {
   return explore(scene);
 };
 
-export { scaleXRight };
+export { translate };
