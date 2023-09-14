@@ -7,11 +7,15 @@ import {
   scaleXRight,
   scaleYDown,
   scaleYUp,
+  rotate,
+  translate,
+  scaleYDownXLeft,
+  scaleYDownXRight,
+  scaleYUpXRight,
+  scaleYUpXLeft,
 } from "./Transformations";
 import { useNode } from "./useNode";
 import { HoverTarget, useHoverDetect } from "./useHoverDetect";
-import { rotate } from "./Transformations/rotate";
-import { translate } from "./Transformations/translate";
 
 const useScene = (
   ctx: CanvasRenderingContext2D | undefined,
@@ -58,6 +62,14 @@ const useScene = (
     if (type === HoverTarget.EDGE_2) setScene(scaleYUp(scene, name, mpdelta));
     if (type === HoverTarget.EDGE_3) setScene(scaleXLeft(scene, name, mpdelta));
     if (type === HoverTarget.RECT) setScene(translate(scene, name, mpdelta));
+    if (type === HoverTarget.VERTEX_0)
+      setScene(scaleYDownXLeft(scene, name, mpdelta));
+    if (type === HoverTarget.VERTEX_1)
+      setScene(scaleYDownXRight(scene, name, mpdelta));
+    if (type === HoverTarget.VERTEX_2)
+      setScene(scaleYUpXRight(scene, name, mpdelta));
+    if (type === HoverTarget.VERTEX_3)
+      setScene(scaleYUpXLeft(scene, name, mpdelta));
   };
 
   return {
