@@ -1,46 +1,58 @@
-# Getting Started with Create React App
+# Canvas Render demo
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project shows how canvas could be used as a 2D rendering layer.
 
-## Available Scripts
+Project uses React to bootstrap the app, canvas as a drawing layer and gl-matrix lib for vector operations.
 
-In the project directory, you can run:
+## How to start
 
-### `npm start`
+```
+git clone git@github.com:kocur4d/canvas-render-demo.git
+cd canvas-render-demo
+npm install
+npm run start
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### How does it work
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Input data in are the rectangles
 
-### `npm test`
+```
+  {
+    name: "Table 1",
+    geometry: {
+      x: 500,
+      y: 500,
+      h: 100,
+      w: 100,
+      a: 45,
+    },
+  },
+```
+This geomety represents `x,y` as a top left corner `h,w` are width and height and `a` is anticlockwise rotation around the middle of the rect.
+This geometry can by eaisly turn into three matrix operation, translate, scale and rotate.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Input date gets converted into the scene graph which is the application source of truth.
 
-### `npm run build`
+Main, and only, HTML component used is canvas. Which simply hooksup to rendering framework via event handlers.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+    <canvas
+      ref={ref}
+      onMouseMove={handleOnMouseMove}
+      onMouseDown={handleOnMouseDown}
+      onMouseUp={handleOnMouseUp}
+      onWheel={handleOnWheel}
+    />
+```
+Mouse movemnt gets tracked and compared to the scene. When conditions are meet, cursor over shape/cursor over edge/ mosue clicked, and user starts dragging. 
+One matrix transformation routine from `Scene/Transformations` folder will be called modifing the affected node which in turn will force all of the scene to be redrawn.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Gotchas
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+This is just a quick demo. Alot of things can be improved. Most of the edge cases will result in application blowing up mostly due to division by 0.
 
-### `npm run eject`
+### Demo
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+https://github.com/kocur4d/canvas-render-demo/assets/1427354/5e5cdc0d-ea59-45da-b06b-1a3faf0ec857
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
