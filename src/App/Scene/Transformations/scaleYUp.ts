@@ -1,6 +1,7 @@
 import { mat3, vec2, vec3 } from "gl-matrix";
 import { SceneNode, cloneNode } from "../Graph";
 import { Axis, RECT } from "./types";
+import { getScaleFactor } from "./getScaleFactor";
 
 const scaleYUp = (scene: SceneNode, name: string, mpdelta: vec2) => {
   const explore = (node: SceneNode) => {
@@ -8,12 +9,8 @@ const scaleYUp = (scene: SceneNode, name: string, mpdelta: vec2) => {
 
     if (node.name === name) {
       const scale = vec2.fromValues(1, 1);
-      scale[Axis.Y] =
-        1 +
-        mpdelta[Axis.Y] /
-          vec3.length(
-            vec3.subtract(vec3.create(), nnode.vertices[0], nnode.vertices[3])
-          );
+      getScaleFactor(mpdelta, nnode);
+      scale[Axis.Y] = 1 + mpdelta[Axis.Y];
       const T = nnode.transformations[0];
       const S = mat3.create();
       mat3.fromScaling(S, scale);

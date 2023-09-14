@@ -10,6 +10,7 @@ import {
 } from "./Transformations";
 import { useNode } from "./useNode";
 import { HoverTarget, useHoverDetect } from "./useHoverDetect";
+import { rotate } from "./Transformations/rotate";
 
 const useScene = (
   ctx: CanvasRenderingContext2D | undefined,
@@ -43,6 +44,12 @@ const useScene = (
     setIsDragging(false);
   };
 
+  const sceneOnWheel = (delta: number) => {
+    if (node && hoverTarget === HoverTarget.RECT) {
+      setScene(rotate(scene, node.name, delta));
+    }
+  };
+
   const updateNode = (name: string, mpdelta: vec2, type: HoverTarget) => {
     if (type === HoverTarget.EDGE_1)
       setScene(scaleXRight(scene, name, mpdelta));
@@ -55,6 +62,7 @@ const useScene = (
     sceneOnMouseMove,
     sceneOnMouseDown,
     sceneOnMouseUp,
+    sceneOnWheel,
   };
 };
 
