@@ -1,46 +1,54 @@
-# Getting Started with Create React App
+# Canvas Render demo
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project demonstrates how to utilize the HTML canvas element as a 2D rendering layer. It leverages React to bootstrap the application, the canvas element for drawing, and the gl-matrix library for vector operations.
 
-## Available Scripts
+## Getting started
 
-In the project directory, you can run:
+```
+git clone git@github.com:kocur4d/canvas-render-demo.git
+cd canvas-render-demo
+npm install
+npm run start
+```
 
-### `npm start`
+### How does it work
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+The input data consists of rectangles described in the following format:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```
+  {
+    name: "Table 1",
+    geometry: {
+      x: 500,
+      y: 500,
+      h: 100,
+      w: 100,
+      a: 45,
+    },
+  },
+```
+In this geometry representation, `x` and `y` specify the top-left corner, `h` and `w` define the width and height, and `a` represents the anticlockwise rotation around the middle of the rectangle. These geometric properties are easily transformed into three matrix operations: translate, scale, and rotate.
 
-### `npm test`
+The input data is converted into a scene graph, which serves as the application's source of truth.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The primary HTML component used is the canvas element, which connects to the rendering framework through event handlers:
 
-### `npm run build`
+```
+    <canvas
+      ref={ref}
+      onMouseMove={handleOnMouseMove}
+      onMouseDown={handleOnMouseDown}
+      onMouseUp={handleOnMouseUp}
+      onWheel={handleOnWheel}
+    />
+```
+Mouse movements are tracked and compared to the scene. When specific conditions are met (e.g., cursor over shape, cursor over edge, mouse clicked), and the user starts dragging, a matrix transformation routine from the Scene/Transformations folder is called to modify the affected node. This, in turn, triggers a redraw of the entire scene.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Gotchas
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+This is a quick demo, and there is room for improvement. Be aware that many edge cases can cause the application to fail, often due to division by zero errors.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Demo
 
-### `npm run eject`
+https://github.com/kocur4d/canvas-render-demo/assets/1427354/5e5cdc0d-ea59-45da-b06b-1a3faf0ec857
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
