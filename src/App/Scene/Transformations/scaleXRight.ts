@@ -1,7 +1,7 @@
 import { mat3, vec2, vec3 } from "gl-matrix";
 import { SceneNode, cloneNode } from "../Graph";
-import { Axis, RECT } from "./types";
-import { getScaleFactor } from "./getScaleFactor";
+import { Axis, GrowDirection, RECT } from "./types";
+import { getScaleMatrix } from "./getScaleMatrix";
 
 const scaleXRight = (scene: SceneNode, name: string, mpdelta: vec2) => {
   const explore = (node: SceneNode) => {
@@ -9,19 +9,18 @@ const scaleXRight = (scene: SceneNode, name: string, mpdelta: vec2) => {
 
     if (node.name === name) {
       const T = nnode.transformations[0];
-      const scale = vec2.fromValues(1, 1);
-      getScaleFactor(mpdelta, nnode);
-      scale[Axis.X] = 1 + mpdelta[Axis.X];
-      const S = mat3.create();
-      mat3.fromScaling(S, scale);
+      const S = getScaleMatrix(mpdelta, T, [
+        { axis: Axis.X, dir: GrowDirection.P },
+      ]);
+
       mat3.multiply(T, T, S);
+
       nnode.transformations = [T];
       nnode.vertices = RECT.map((v) => vec3.transformMat3(vec3.create(), v, T));
       return nnode;
     }
 
     nnode.children = nnode.children.map(explore);
-
     return nnode;
   };
 
