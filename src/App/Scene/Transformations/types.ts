@@ -10,6 +10,11 @@ export const enum GrowDirection {
   N = -1,
 }
 
+export interface AxesToScale {
+  axis: Axis;
+  dir: GrowDirection;
+}
+
 export const RECT = [
   vec3.fromValues(0, 0, 1),
   vec3.fromValues(1, 0, 1),

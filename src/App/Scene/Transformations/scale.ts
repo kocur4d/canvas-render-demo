@@ -1,19 +1,27 @@
 import { mat3, vec2, vec3 } from "gl-matrix";
 import { SceneNode, cloneNode } from "../Graph";
-import { Axis, GrowDirection, RECT } from "./types";
+import { AxesToScale, RECT } from "./types";
 import { getScaleMatrix } from "./getScaleMatrix";
 
-const scaleXRight = (scene: SceneNode, name: string, mpdelta: vec2) => {
+const scale = (
+  scene: SceneNode,
+  name: string,
+  mpdelta: vec2,
+  axes: AxesToScale[],
+  translate: vec2
+) => {
   const explore = (node: SceneNode) => {
     const nnode = cloneNode(node);
 
     if (node.name === name) {
       const T = nnode.transformations[0];
-      const S = getScaleMatrix(mpdelta, T, [
-        { axis: Axis.X, dir: GrowDirection.P },
-      ]);
+      const SCALE = getScaleMatrix(mpdelta, T, axes);
+      const TRANSLATE = mat3.fromTranslation(mat3.create(), translate);
+      const TRANSLATE_I = mat3.invert(mat3.create(), TRANSLATE);
 
-      mat3.multiply(T, T, S);
+      mat3.multiply(T, T, TRANSLATE_I);
+      mat3.multiply(T, T, SCALE);
+      mat3.multiply(T, T, TRANSLATE);
 
       nnode.transformations = [T];
       nnode.vertices = RECT.map((v) => vec3.transformMat3(vec3.create(), v, T));
@@ -27,4 +35,4 @@ const scaleXRight = (scene: SceneNode, name: string, mpdelta: vec2) => {
   return explore(scene);
 };
 
-export { scaleXRight };
+export { scale };

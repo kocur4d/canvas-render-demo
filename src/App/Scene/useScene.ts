@@ -2,20 +2,10 @@ import { useState } from "react";
 import { createScene, Shape } from "./createScene";
 import { vec2 } from "gl-matrix";
 import { useDrawScene } from "./useDrawScene";
-import {
-  scaleXLeft,
-  scaleXRight,
-  scaleYDown,
-  scaleYUp,
-  rotate,
-  translate,
-  scaleYDownXLeft,
-  scaleYDownXRight,
-  scaleYUpXRight,
-  scaleYUpXLeft,
-} from "./Transformations";
+import { rotate, scale, translate } from "./Transformations";
 import { useNode } from "./useNode";
 import { HoverTarget, useHoverDetect } from "./useHoverDetect";
+import { Axis, GrowDirection } from "./Transformations/types";
 
 const useScene = (
   ctx: CanvasRenderingContext2D | undefined,
@@ -56,20 +46,104 @@ const useScene = (
   };
 
   const updateNode = (name: string, mpdelta: vec2, type: HoverTarget) => {
-    if (type === HoverTarget.EDGE_1)
-      setScene(scaleXRight(scene, name, mpdelta));
-    if (type === HoverTarget.EDGE_0) setScene(scaleYDown(scene, name, mpdelta));
-    if (type === HoverTarget.EDGE_2) setScene(scaleYUp(scene, name, mpdelta));
-    if (type === HoverTarget.EDGE_3) setScene(scaleXLeft(scene, name, mpdelta));
     if (type === HoverTarget.RECT) setScene(translate(scene, name, mpdelta));
+    if (type === HoverTarget.EDGE_0)
+      setScene(
+        scale(
+          scene,
+          name,
+          mpdelta,
+          [
+            {
+              axis: Axis.Y,
+              dir: GrowDirection.N,
+            },
+          ],
+          vec2.fromValues(0, -1)
+        )
+      );
+    if (type === HoverTarget.EDGE_1)
+      setScene(
+        scale(
+          scene,
+          name,
+          mpdelta,
+          [{ axis: Axis.X, dir: GrowDirection.P }],
+          vec2.fromValues(0, 0)
+        )
+      );
+    if (type === HoverTarget.EDGE_2)
+      setScene(
+        scale(
+          scene,
+          name,
+          mpdelta,
+          [{ axis: Axis.Y, dir: GrowDirection.P }],
+          vec2.fromValues(0, 0)
+        )
+      );
+    if (type === HoverTarget.EDGE_3)
+      setScene(
+        scale(
+          scene,
+          name,
+          mpdelta,
+          [{ axis: Axis.X, dir: GrowDirection.N }],
+          vec2.fromValues(-1, 0)
+        )
+      );
     if (type === HoverTarget.VERTEX_0)
-      setScene(scaleYDownXLeft(scene, name, mpdelta));
+      setScene(
+        scale(
+          scene,
+          name,
+          mpdelta,
+          [
+            { axis: Axis.X, dir: GrowDirection.N },
+            { axis: Axis.Y, dir: GrowDirection.N },
+          ],
+          vec2.fromValues(-1, -1)
+        )
+      );
     if (type === HoverTarget.VERTEX_1)
-      setScene(scaleYDownXRight(scene, name, mpdelta));
+      setScene(
+        scale(
+          scene,
+          name,
+          mpdelta,
+          [
+            { axis: Axis.X, dir: GrowDirection.P },
+            { axis: Axis.Y, dir: GrowDirection.N },
+          ],
+          vec2.fromValues(0, -1)
+        )
+      );
     if (type === HoverTarget.VERTEX_2)
-      setScene(scaleYUpXRight(scene, name, mpdelta));
+      setScene(
+        scale(
+          scene,
+          name,
+          mpdelta,
+          [
+            { axis: Axis.X, dir: GrowDirection.P },
+            { axis: Axis.Y, dir: GrowDirection.P },
+          ],
+          vec2.fromValues(0, 0)
+        )
+      );
     if (type === HoverTarget.VERTEX_3)
-      setScene(scaleYUpXLeft(scene, name, mpdelta));
+      setScene(
+        scale(
+          scene,
+          name,
+          mpdelta,
+          [
+            { axis: Axis.X, dir: GrowDirection.N },
+            { axis: Axis.Y, dir: GrowDirection.P },
+          ],
+          vec2.fromValues(-1, 0)
+        )
+      );
   };
 
   return {

@@ -1,12 +1,7 @@
 import { mat3, vec2, vec3 } from "gl-matrix";
-import { Axis, GrowDirection } from "./types";
+import { AxesToScale } from "./types";
 
-interface Scale {
-  axis: Axis;
-  dir: GrowDirection;
-}
-
-const getScaleMatrix = (mpdelta: vec2, T: mat3, axes: Scale[]) => {
+const getScaleMatrix = (mpdelta: vec2, T: mat3, axes: AxesToScale[]) => {
   const TI = mat3.invert(mat3.create(), T);
   const mpdelta_t = vec3.transformMat3(
     vec3.create(),
